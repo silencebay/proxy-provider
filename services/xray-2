@@ -1,0 +1,5 @@
+#!/usr/bin/with-contenv bash
+set -euo pipefail
+
+exec 2>&1
+exec s6-setuidgid abc xray run -confdir /config/xray-2/ | exec s6-setuidgid abc mawk -W interactive '{printf "%c[33m[xray-2]%c[0m %s\n", 27, 27, $0}'
