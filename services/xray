@@ -1,0 +1,10 @@
+#!/command/execlineb -P
+s6-setuidgid abc
+
+with-contenv
+pipeline {
+    fdmove -c 2 1
+    xray run -confdir /config/xray/
+}
+mawk -W interactive "{printf \"%c[32m[xray]%c[0m %s\\n\", 27, 27, $0}"
+# awk -W interactive ...  (prefix log messages with color and "[xray]"), added -W interactive to awk to avoid stdout caching

@@ -1,0 +1,11 @@
+services:
+  proxy-provider:
+    # build:
+    #   context: ./
+    #   args:
+    #     - XRAY_PRERELEASE=1
+    # image: ghcr.io/silencebay/proxy-provider:main-prelease
+    image: ghcr.io/silencebay/proxy-provider:main
+    volumes:
+      - ./config:/config
+      - ./services:/custom-services.d:ro
