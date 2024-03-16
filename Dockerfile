@@ -37,15 +37,17 @@ RUN set -eux; \
         "linux/arm/v7") architecture=openwrt-arm_cortex-a15_neon-vfpv4 ;; \
     esac; \
     \
+    repo_api="https://api.github.com/repos/klzgrad/naiveproxy/releases"; \
+    asset_pattern="^naiveproxy-.*${architecture}"; \
     if [ -z "${NAIVEPROXY_TAGNAME}" ]; then \
         if [ -z "${NAIVEPROXY_PRERELEASE}" ]; then \
-            download_url=$(curl -L "https://api.github.com/repos/klzgrad/naiveproxy/releases/latest?per_page=1" | jq -r --arg asset "^naiveproxy-.*${architecture}" '.assets[] | select (.name | test($asset))| .browser_download_url' -); \
+            download_url=$(curl -L "$repo_api?per_page=100" | jq -r --arg asset "$asset_pattern" '[.[] | select(((.assets | length) > 0) and (.prerelease==false))] | first | .assets[] | select (.name | test($asset)) | .browser_download_url' -); \
         else \
-            download_url=$(curl -L "https://api.github.com/repos/klzgrad/naiveproxy/releases?per_page=1" | jq -r --arg asset "^naiveproxy-.*${architecture}" '.[].assets[] | select (.name | test($asset))| .browser_download_url' -); \
+            download_url=$(curl -L "$repo_api?per_page=100" | jq -r --arg asset "$asset_pattern" '[.[] | select((.assets | length) > 0)] | first | .assets[] | select (.name | test($asset))| .browser_download_url' -); \
         \
         fi; \
     else \
-        download_url=$(curl -L "https://api.github.com/repos/klzgrad/naiveproxy/releases?per_page=100" | jq -r --arg asset "^naiveproxy-.*${architecture}" --arg tag_name "${NAIVEPROXY_TAGNAME}" '.[].assets[] | select(.name | test($asset)) and select(.tag_name | test($tag_name)) | .browser_download_url' -); \
+        download_url=$(curl -L "$repo_api?per_page=100" | jq -r --arg asset "$asset_pattern" --arg tag_name "${NAIVEPROXY_TAGNAME}" '[.[] | select(((.assets | length) > 0) and (.tag_name | test($tag_name)))] | first | .assets[] | select(.name | test($asset)) | .browser_download_url' -); \
     fi; \
     curl -L $download_url | tar x -Jvf -; \
     mv naiveproxy-* naiveproxy; \
@@ -58,15 +60,17 @@ RUN set -eux; \
         "linux/arm/v7")                architecture=linux-arm32 ;; \
     esac; \
     \
+    repo_api="https://api.github.com/repos/XTLS/Xray-core/releases"; \
+    asset_pattern="^Xray-.*$architecture.*\.zip$"; \
     if [ -z "${XRAY_TAGNAME}" ]; then \
         if [ -z "${XRAY_PRERELEASE}" ]; then \
-            download_url=$(curl -L "https://api.github.com/repos/XTLS/Xray-core/releases/latest?per_page=1" | jq -r --arg asset "^Xray-.*$architecture.*\.zip$" '.assets[] | select (.name | test($asset))| .browser_download_url' -); \
+            download_url=$(curl -L "$repo_api?per_page=100" | jq -r --arg asset "$asset_pattern" '[.[] | select(((.assets | length) > 0) and (.prerelease==false))] | first | .assets[] | select (.name | test($asset)) | .browser_download_url' -); \
         else \
-            download_url=$(curl -L "https://api.github.com/repos/XTLS/Xray-core/releases?per_page=1" | jq -r --arg asset "^Xray-.*$architecture.*\.zip$" '.[].assets[] | select (.name | test($asset))| .browser_download_url' -); \
+            download_url=$(curl -L "$repo_api?per_page=100" | jq -r --arg asset "$asset_pattern" '[.[] | select((.assets | length) > 0)] | first | .assets[] | select (.name | test($asset)) | .browser_download_url' -); \
         \
         fi; \
     else \
-        download_url=$(curl -L "https://api.github.com/repos/XTLS/Xray-core/releases?per_page=100" | jq -r --arg asset "^Xray-.*$architecture.*\.zip$" '.[].assets[] | select(.name | test($asset)) and select(.tag_name | test($tag_name)) | .browser_download_url' -); \
+        download_url=$(curl -L "$repo_api?per_page=100" | jq -r --arg asset "$asset_pattern" '[.[] | select(((.assets | length) > 0) and (.tag_name | test($tag_name)))] | first | .assets[] | select(.name | test($asset)) | .browser_download_url' -); \
     fi; \
     curl -L $download_url -o temp.zip; \
     unzip temp.zip -d xray; \
